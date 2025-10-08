@@ -247,7 +247,12 @@ function DateEl({ dateInfo }) {
 
 function DateInput({ formData, handleChange }) {
   const handleDateChange = (date) => {
-    const formatted = date?.toISOString().slice(0, 10) || "";
+    const formatted = date
+      ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+          2,
+          "0"
+        )}-${String(date.getDate()).padStart(2, "0")}`
+      : "";
     handleChange({ target: { name: "date", value: formatted } });
   };
   const datePicker = useRef(null);
@@ -268,7 +273,7 @@ function DateInput({ formData, handleChange }) {
       </button>
       <DatePicker
         ref={datePicker}
-        selected={formData.date ? new Date(formData.date) : null}
+        selected={formData.date ? new Date(`${formData.date}T00:00`) : null}
         onChange={handleDateChange}
         dateFormat="yyyy-MM-dd"
         className="hidden-input"
