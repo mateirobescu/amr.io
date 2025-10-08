@@ -1,6 +1,6 @@
 # 🕒 amr.io
 
-A minimalist countdown app built with React and Vite — designed to help you visualize time until your next big event.  
+A minimalist countdown app built with React and Vite — designed to help you visualize your deadlines.  
 Fast, responsive, and beautifully simple.
 
 ---
