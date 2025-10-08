@@ -1,0 +1,75 @@
+:root {
+  font-family: "Dosis", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 1rem;
+
+  line-height: 1.5;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  --bp-sm: 30em; /* 480px */
+  --bp-md: 48em; /* 768px */
+  --bp-lg: 64em; /* 1024px */
+  --bp-xl: 80em; /* 1280px */
+}
+
+:root[data-theme="light"] {
+  --c-text: #242424;
+  --c-text-secondary: #595959;
+  --c-bg: #fff;
+  --c-bg-secondary: rgba(0, 0, 0, 0.1);
+}
+
+:root[data-theme="dark"] {
+  --c-text: #fff;
+  --c-text-secondary: #c5c5c5;
+  --c-bg: #242424;
+  --c-bg-secondary: rgba(255, 255, 255, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --c-text: #fff;
+    --c-text-secondary: #c5c5c5;
+    --c-bg: #242424;
+    --c-bg-secondary: rgba(255, 255, 255, 0.1);
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+button {
+  all: unset;
+  display: block;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+a:link,
+a:visited {
+  all: unset;
+}
+
+a:hover,
+button:hover {
+  cursor: pointer;
+}
+
+body {
+  color: var(--c-text);
+  background-color: var(--c-bg);
+}
+
+html,
+body {
+  overflow-x: hidden;
+}
