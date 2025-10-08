@@ -242,3 +242,51 @@ html.no-scroll {
     gap: 0;
   }
 }
+
+.react-datepicker__tab-loop__start {
+  display: none;
+}
+
+.react-datepicker-wrapper {
+  display: none;
+}
+
+.react-datepicker__input-container {
+  display: none;
+}
+
+.hidden-input {
+  display: none;
+}
+
+.react-datepicker-popper {
+  transform: translate(0) !important;
+  background-color: var(--c-bg);
+  color: var(--c-text);
+}
+
+.react-datepicker {
+  background-color: var(--c-bg);
+  color: var(--c-text);
+}
+
+.react-datepicker__header {
+  background-color: var(--c-bg-secondary);
+  color: var(--c-text);
+}
+
+.react-datepicker__day {
+  color: var(--c-text);
+}
+
+.react-datepicker__day--selected {
+  background-color: #40c057;
+}
+
+.react-datepicker__day-name {
+  color: var(--c-text);
+}
+
+.react-datepicker__current-month {
+  color: var(--c-text);
+}

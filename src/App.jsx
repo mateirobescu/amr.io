@@ -4,6 +4,8 @@ import { IoIosMenu } from "react-icons/io";
 import { IoMdClose } from "react-icons/io";
 import { IoInvertMode } from "react-icons/io5";
 import { IoTrashOutline } from "react-icons/io5";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 import "./index.css";
 import "./App.css";
@@ -103,7 +105,7 @@ function InstructionsMsg() {
         delete or change to current counter.
       </p>
       <p>
-        Once you select the counter, click on the screen to chagne between modes
+        Once you select the counter, click on the screen to change between modes
         (days, hours, minutes, etc...).
       </p>
     </div>
@@ -243,6 +245,42 @@ function DateEl({ dateInfo }) {
   );
 }
 
+function DateInput({ formData, handleChange }) {
+  const handleDateChange = (date) => {
+    const formatted = date?.toISOString().slice(0, 10) || "";
+    handleChange({ target: { name: "date", value: formatted } });
+  };
+  const datePicker = useRef(null);
+
+  return (
+    <div>
+      <button
+        aria-label="Open date picker button"
+        type="button"
+        className="date"
+        onClick={() => datePicker.current?.setOpen(true)}
+      >
+        <span>{formData.date.split("-")[2] || "dd"}</span>
+        <span>/</span>
+        <span>{formData.date.split("-")[1] || "mm"}</span>
+        <span>/</span>
+        <span>{formData.date.split("-")[0] || "yyyy"}</span>
+      </button>
+      <DatePicker
+        ref={datePicker}
+        selected={formData.date ? new Date(formData.date) : null}
+        onChange={handleDateChange}
+        dateFormat="yyyy-MM-dd"
+        className="hidden-input"
+        calendarStartDay={1}
+        showPopperArrow={false}
+        minDate={new Date(2000, 0, 1)}
+        maxDate={new Date(2100, 11, 31)}
+      />
+    </div>
+  );
+}
+
 function NewDateForm() {
   const { dates, setDates } = useAppContext();
 
@@ -250,7 +288,6 @@ function NewDateForm() {
     name: "",
     date: "",
   });
-  const datePicker = useRef(null);
 
   function handleForm(e) {
     e.preventDefault();
@@ -271,10 +308,6 @@ function NewDateForm() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   }
 
-  function openDatePicker() {
-    datePicker.current.showPicker();
-  }
-
   return (
     <form className="form" onSubmit={handleForm}>
       <input
@@ -285,27 +318,8 @@ function NewDateForm() {
         onChange={handleChange}
       />
 
-      <button
-        aria-label="Open date picker button"
-        type="button"
-        className="date"
-        onClick={openDatePicker}
-      >
-        <span>{formData.date.split("-")[2] || "dd"}</span>
-        <span>/</span>
-        <span>{formData.date.split("-")[1] || "mm"}</span>
-        <span>/</span>
-        <span>{formData.date.split("-")[0] || "yyyy"}</span>
-      </button>
-      <input
-        ref={datePicker}
-        type="date"
-        placeholder="dd"
-        style={{ display: "none" }}
-        name="date"
-        value={formData.date}
-        onChange={handleChange}
-      />
+      <DateInput formData={formData} handleChange={handleChange} />
+
       <button aria-label="Add date button" className="add-date__btn">
         Add Date
       </button>
