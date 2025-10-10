@@ -21,7 +21,10 @@ function getCurrentCounter() {
 
   if (counter) {
     const parsed = JSON.parse(counter);
-    parsed.dateObj = new Date(parsed.dateObj);
+    const [year, month, day] = parsed.dateObj.split("-");
+
+    parsed.dateObj = new Date(year, month - 1, day);
+    console.log(parsed.dateObj);
     return parsed;
   }
 
@@ -32,8 +35,10 @@ const AppContext = createContext();
 
 export function AppProvider({ children }) {
   const [menuState, setMenuState] = useState(false);
-  const [theme, setTheme] = useState(getTheme());
-  const [currentCounter, setCurrentCounter] = useState(getCurrentCounter());
+  const [theme, setTheme] = useState(() => getTheme());
+  const [currentCounter, setCurrentCounter] = useState(() =>
+    getCurrentCounter()
+  );
 
   const [timeLeft, setTimeLeft] = useState(
     currentCounter
@@ -41,7 +46,7 @@ export function AppProvider({ children }) {
       : null
   );
 
-  const [counterState, setCounterState] = useState(getCounterState());
+  const [counterState, setCounterState] = useState(() => getCounterState());
 
   useEffect(() => {
     if (menuState) {

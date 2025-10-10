@@ -12,15 +12,12 @@ import "./App.css";
 
 function MenuBtn() {
   const { menuState, setMenuState } = useAppContext();
-  function activateMenu() {
-    setMenuState(!menuState);
-  }
 
   return (
     <button
       aria-label="Menu button"
       className={`header__btn left ${menuState ? "open" : ""}`}
-      onClick={activateMenu}
+      onClick={() => setMenuState(!menuState)}
     >
       {!menuState ? <IoIosMenu /> : <IoMdClose />}
     </button>
@@ -52,8 +49,6 @@ function Header() {
 }
 
 function Main() {
-  const { menuState, counterState, setCounterState } = useAppContext();
-
   return (
     <div className="main">
       <Menu />
@@ -81,8 +76,7 @@ function saveCounterState(newState, setCounterState) {
 }
 
 function CounterBtn() {
-  const { counterState, setCounterState, currentCounter, setCurrentCounter } =
-    useAppContext();
+  const { counterState, setCounterState, currentCounter } = useAppContext();
 
   return (
     <button
@@ -113,13 +107,8 @@ function InstructionsMsg() {
 }
 
 function Counter() {
-  const {
-    currentCounter,
-    timeLeft,
-    setTimeLeft,
-    counterState,
-    setCounterState,
-  } = useAppContext();
+  const { currentCounter, timeLeft, setTimeLeft, counterState } =
+    useAppContext();
 
   const stateTimes = {
     0: 1000,
@@ -138,7 +127,7 @@ function Counter() {
       stateTimes[counterState]
     );
     return () => clearInterval(interval);
-  }, [timeLeft, currentCounter]);
+  }, [currentCounter]);
 
   if (currentCounter === null) return <InstructionsMsg />;
 
@@ -164,7 +153,7 @@ function Counter() {
   const counterMsg = (
     <>
       <span className="counter-msg">{`${
-        timeData[4][1] > 0 ? "Until" : "Since"
+        timeLeft > 0 ? "Until" : "Since"
       }`}</span>
       <span className="counter-msg"> {currentCounter.name}</span>
     </>
@@ -180,14 +169,9 @@ function Counter() {
 
 function DateEl({ dateInfo }) {
   const { name, date } = dateInfo;
-  const {
-    dates,
-    setDates,
-    currentCounter,
-    setCurrentCounter,
-    menuState,
-    setMenuState,
-  } = useAppContext();
+
+  const { setDates, currentCounter, setCurrentCounter, setMenuState } =
+    useAppContext();
 
   function deleteDate(e) {
     e.stopPropagation();
@@ -301,11 +285,11 @@ function NewDateForm() {
 
     if (dates.some((date) => date.name === formData.name)) return;
 
+    setDates((prev) => [...prev, formData]);
     setFormData({
       name: "",
       date: "",
     });
-    setDates((prev) => [...prev, formData]);
   }
 
   function handleChange(e) {
