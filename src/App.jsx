@@ -127,7 +127,7 @@ function Counter() {
       stateTimes[counterState]
     );
     return () => clearInterval(interval);
-  }, [currentCounter]);
+  }, [currentCounter, counterState]);
 
   if (currentCounter === null) return <InstructionsMsg />;
 
