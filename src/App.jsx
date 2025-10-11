@@ -1,4 +1,12 @@
-import { Fragment, use, useEffect, useRef, useState } from "react";
+import {
+  Fragment,
+  use,
+  useEffect,
+  useRef,
+  useState,
+  useCallback,
+  useMemo,
+} from "react";
 import { AppProvider, useAppContext } from "./context/AppContext";
 import { IoIosMenu } from "react-icons/io";
 import { IoMdClose } from "react-icons/io";
@@ -16,6 +24,7 @@ function MenuBtn() {
   return (
     <button
       aria-label="Menu button"
+      aria-expanded={menuState}
       className={`header__btn left ${menuState ? "open" : ""}`}
       onClick={() => setMenuState(!menuState)}
     >
@@ -27,11 +36,17 @@ function MenuBtn() {
 function ThemeToggleBtn() {
   const { theme, setTheme } = useAppContext();
 
+  const toggleTheme = useCallback(
+    () => setTheme(theme === "dark" ? "light" : "dark"),
+    [theme, setTheme]
+  );
+
   return (
     <button
       aria-label="Theme switcher button"
+      aria-pressed={theme === "dark"}
       className="header__btn right"
-      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+      onClick={toggleTheme}
     >
       <IoInvertMode />
     </button>
@@ -40,59 +55,65 @@ function ThemeToggleBtn() {
 
 function Header() {
   return (
-    <div className="header">
+    <header className="header">
       <MenuBtn />
       <h1 className="header-title">amr.io</h1>
       <ThemeToggleBtn />
-    </div>
+    </header>
   );
 }
 
 function Main() {
   return (
-    <div className="main">
+    <main className="main">
       <Menu />
       <Overlay />
       <CounterBtn />
       <Counter />
-    </div>
+    </main>
   );
 }
 
 function Overlay() {
   const { menuState, setMenuState } = useAppContext();
 
+  const closeMenu = useCallback(() => setMenuState(false), [setMenuState]);
+
   return (
     <div
+      role="button"
       className={`overlay ${menuState ? "open" : ""}`}
-      onClick={() => setMenuState(false)}
+      onClick={closeMenu}
     ></div>
   );
 }
 
-function saveCounterState(newState, setCounterState) {
+function saveCounterState(newState) {
   localStorage.setItem("counterState", newState);
-  setCounterState(newState);
+  return newState;
 }
 
 function CounterBtn() {
   const { counterState, setCounterState, currentCounter } = useAppContext();
 
+  const handleClick = useCallback(() => {
+    if (!currentCounter) return;
+    const newState = (counterState + 1) % 5;
+    setCounterState(saveCounterState(newState));
+  }, [counterState, currentCounter, setCounterState]);
+
   return (
     <button
       aria-label="Counter mode switcher button"
       className="counter__btn"
-      onClick={() =>
-        currentCounter &&
-        saveCounterState((counterState + 1) % 5, setCounterState)
-      }
+      onClick={handleClick}
     ></button>
   );
 }
 
 function InstructionsMsg() {
   return (
-    <div className="instructions">
+    <section className="instructions" aria-labelledby="instructions-title">
       <h2>Welcome to amr.io!</h2>
       <p>
         Click on the menu button in the top left part of the screen to add,
@@ -102,7 +123,7 @@ function InstructionsMsg() {
         Once you select the counter, click on the screen to change between modes
         (days, hours, minutes, etc...).
       </p>
-    </div>
+    </section>
   );
 }
 
@@ -115,29 +136,33 @@ function Counter() {
     1: 1000,
     2: 1000,
     3: 250,
-    4: 100,
+    4: 125,
   };
 
-  useEffect(() => {
-    if (currentCounter === null) return;
+  const intervalRef = useRef();
 
-    const interval = setInterval(
-      () =>
-        setTimeLeft(currentCounter.dateObj.getTime() - new Date().getTime()),
-      stateTimes[counterState]
-    );
-    return () => clearInterval(interval);
+  useEffect(() => {
+    if (!currentCounter) return;
+
+    intervalRef.current = setInterval(() => {
+      setTimeLeft(currentCounter.dateObj.getTime() - new Date().getTime());
+    }, stateTimes[counterState]);
+
+    return () => clearInterval(intervalRef.current);
   }, [currentCounter, counterState]);
 
   if (currentCounter === null) return <InstructionsMsg />;
 
-  const timeData = [
-    ["days", Math.trunc(timeLeft / (1000 * 60 * 60 * 24))],
-    ["hours", Math.trunc((timeLeft / (1000 * 60 * 60)) % 24)],
-    ["minutes", Math.trunc((timeLeft / (1000 * 60)) % 60)],
-    ["seconds", Math.trunc((timeLeft / 1000) % 60)],
-    ["miliseconds", Math.trunc(timeLeft % 1000)],
-  ];
+  const timeData = useMemo(
+    () => [
+      ["days", Math.trunc(timeLeft / (1000 * 60 * 60 * 24))],
+      ["hours", Math.trunc((timeLeft / (1000 * 60 * 60)) % 24)],
+      ["minutes", Math.trunc((timeLeft / (1000 * 60)) % 60)],
+      ["seconds", Math.trunc((timeLeft / 1000) % 60)],
+      ["milliseconds", Math.trunc(timeLeft % 1000)],
+    ],
+    [timeLeft]
+  );
 
   const cleanTime = timeData
     .filter((_, index) => index <= counterState)
@@ -160,7 +185,7 @@ function Counter() {
   );
 
   return (
-    <div className="counter">
+    <div className="counter" aria-live="polite">
       {cleanTime}
       {counterMsg}
     </div>
@@ -173,15 +198,19 @@ function DateEl({ dateInfo }) {
   const { setDates, currentCounter, setCurrentCounter, setMenuState } =
     useAppContext();
 
-  function deleteDate(e) {
-    e.stopPropagation();
+  const deleteDate = useCallback(
+    (e) => {
+      e.stopPropagation();
 
-    setCurrentCounter(null);
-    setDates((prev) => prev.filter((date) => date.name !== name));
-  }
+      setCurrentCounter(null);
+      setDates((prev) => prev.filter((date) => date.name !== name));
+    },
+    [name, setCurrentCounter, setDates]
+  );
 
-  function changeDate() {
-    const [year, month, day] = date.split("-");
+  const [year, month, day] = date.split("-");
+
+  const changeDate = useCallback(() => {
     let new_date;
 
     if (currentCounter?.name === name) {
@@ -197,11 +226,12 @@ function DateEl({ dateInfo }) {
 
     setCurrentCounter(new_date);
     setMenuState(false);
-  }
+  }, [currentCounter, name, date, setCurrentCounter, setMenuState]);
 
   return (
     <>
       <div
+        role="button"
         className={`date__container ${
           currentCounter?.name === name ? "active" : ""
         }`}
@@ -210,11 +240,11 @@ function DateEl({ dateInfo }) {
         <span>{name}</span>
 
         <div className="date">
-          <span>{date.split("-")[2].padStart(2, "0")}</span>
+          <span>{day.padStart(2, "0")}</span>
           <span>/</span>
-          <span>{date.split("-")[1].padStart(2, "0")}</span>
+          <span>{month.padStart(2, "0")}</span>
           <span>/</span>
-          <span>{date.split("-")[0]}</span>
+          <span>{year}</span>
         </div>
         <button
           aria-label="Delete date button"
@@ -245,6 +275,7 @@ function DateInput({ formData, handleChange }) {
     <div>
       <button
         aria-label="Open date picker button"
+        aria-haspopup="dialog"
         type="button"
         className="date"
         onClick={() => datePicker.current?.setOpen(true)}
@@ -278,24 +309,22 @@ function NewDateForm() {
     date: "",
   });
 
-  function handleForm(e) {
-    e.preventDefault();
+  const handleForm = useCallback(
+    (e) => {
+      e.preventDefault();
+      if (!formData.name || !formData.date) return;
+      if (dates.some((d) => d.name === formData.name)) return;
 
-    if (formData.name === "" || formData.value === "") return;
+      setDates((prev) => [...prev, formData]);
+      setFormData({ name: "", date: "" });
+    },
+    [formData, dates, setDates]
+  );
 
-    if (dates.some((date) => date.name === formData.name)) return;
-
-    setDates((prev) => [...prev, formData]);
-    setFormData({
-      name: "",
-      date: "",
-    });
-  }
-
-  function handleChange(e) {
+  const handleChange = useCallback((e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-  }
+  }, []);
 
   return (
     <form className="form" onSubmit={handleForm}>
@@ -305,6 +334,7 @@ function NewDateForm() {
         name="name"
         value={formData.name}
         onChange={handleChange}
+        aria-required="true"
       />
 
       <DateInput formData={formData} handleChange={handleChange} />
@@ -319,17 +349,20 @@ function NewDateForm() {
 function Menu() {
   const { menuState, dates } = useAppContext();
 
-  const datesElements = dates.map((date) => (
-    <DateEl key={date.name} dateInfo={date} />
-  ));
+  const datesElements = useMemo(
+    () => dates.map((date) => <DateEl key={date.name} dateInfo={date} />),
+    [dates]
+  );
 
   return (
     <div
       className={`menu ${menuState ? "open" : ""}`}
       onClick={(e) => e.stopPropagation()}
+      role="menu"
     >
       <div className="dates__container">
-        {datesElements} <NewDateForm />
+        {datesElements}
+        <NewDateForm />
       </div>
     </div>
   );

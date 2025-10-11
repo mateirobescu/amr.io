@@ -2,16 +2,18 @@ import { createContext, useContext, useState, useEffect } from "react";
 
 function getTheme() {
   const storedTheme = localStorage.getItem("theme-data");
-  if (storedTheme) {
-    return storedTheme;
-  }
+  if (storedTheme === "dark" || storedTheme === "light") return storedTheme;
+
   const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
   return prefersDark ? "dark" : "light";
 }
 
 function getCounterState() {
   const state = localStorage.getItem("counterState");
-  if (state) return Number(state);
+  if (state) {
+    const num = Number(state);
+    return !isNaN(num) ? num : 3;
+  }
 
   return 3;
 }
@@ -24,11 +26,17 @@ function getCurrentCounter() {
     const [year, month, day] = parsed.dateObj.split("-");
 
     parsed.dateObj = new Date(year, month - 1, day);
-    console.log(parsed.dateObj);
     return parsed;
   }
 
   return null;
+}
+
+function getDates() {
+  const localDates = JSON.parse(localStorage.getItem("dates"));
+  if (localDates) return localDates;
+
+  return new Array();
 }
 
 const AppContext = createContext();
@@ -52,7 +60,7 @@ export function AppProvider({ children }) {
     if (menuState) {
       document.body.classList.add("no-scroll");
       document.documentElement.classList.add("no-scroll");
-      window.scroll({ top: 0 });
+      scrollTo(0, 0);
     } else {
       document.body.classList.remove("no-scroll");
       document.documentElement.classList.remove("no-scroll");
@@ -69,14 +77,7 @@ export function AppProvider({ children }) {
     localStorage.setItem("theme-data", theme);
   }, [theme]);
 
-  function getDates() {
-    const localDates = JSON.parse(localStorage.getItem("dates"));
-    if (localDates) return localDates;
-
-    return new Array();
-  }
-
-  const [dates, setDates] = useState(getDates());
+  const [dates, setDates] = useState(() => getDates());
 
   useEffect(() => {
     localStorage.setItem("dates", JSON.stringify(dates));
