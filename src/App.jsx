@@ -153,16 +153,13 @@ function Counter() {
 
   if (currentCounter === null) return <InstructionsMsg />;
 
-  const timeData = useMemo(
-    () => [
-      ["days", Math.trunc(timeLeft / (1000 * 60 * 60 * 24))],
-      ["hours", Math.trunc((timeLeft / (1000 * 60 * 60)) % 24)],
-      ["minutes", Math.trunc((timeLeft / (1000 * 60)) % 60)],
-      ["seconds", Math.trunc((timeLeft / 1000) % 60)],
-      ["milliseconds", Math.trunc(timeLeft % 1000)],
-    ],
-    [timeLeft]
-  );
+  const timeData = [
+    ["days", Math.trunc(timeLeft / (1000 * 60 * 60 * 24))],
+    ["hours", Math.trunc((timeLeft / (1000 * 60 * 60)) % 24)],
+    ["minutes", Math.trunc((timeLeft / (1000 * 60)) % 60)],
+    ["seconds", Math.trunc((timeLeft / 1000) % 60)],
+    ["milliseconds", Math.trunc(timeLeft % 1000)],
+  ];
 
   const cleanTime = timeData
     .filter((_, index) => index <= counterState)
