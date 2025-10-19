@@ -38,9 +38,7 @@ amr.io follows accessibility best practices:
 ## 🌐 Meta
 
 - Author: Matei Robescu
-- Website: https://amr.io
-- License: MIT
-- Created with ❤️ and React
+- Website: [amr.io.mateirobescu.com](https://amr.io.mateirobescu.com)
 
 ---
 
