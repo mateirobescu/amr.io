@@ -3,16 +3,12 @@
 A minimalist countdown app built with React and Vite — designed to help you visualize your deadlines.  
 Fast, responsive, and beautifully simple.
 
----
-
 ## Features
 
 - Real-time countdown with millisecond precision
 - Auto light/dark theme (respects system preferences)
 - Smooth, responsive UI with clean transitions
 - Local storage persistence (your theme + dates are saved)
-
----
 
 ## Tech Stack
 
@@ -21,8 +17,6 @@ Fast, responsive, and beautifully simple.
 - React Icons for icons
 - LocalStorage API for state persistence
 - Context API for global state management
-
----
 
 ## 💡 Inspiration
 
